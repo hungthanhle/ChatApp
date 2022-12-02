@@ -22,6 +22,8 @@ export class ConversationService {
     conversation.title = createConversationDto.title;
     conversation.description = createConversationDto.description;
     conversation.last_message_id = null;
+    conversation.pinned_message_id = null;
+    conversation.author_id = createConversationDto.author_id;
     conversation.createdAt = new Date();
     conversation.updatedAt = conversation.createdAt;
     return await this.conversationRepository.save(conversation);

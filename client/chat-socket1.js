@@ -7,6 +7,8 @@ const socket = io('http://localhost:3000', {
 const message = document.getElementById('message');
 const messages = document.getElementById('messages');
 const users = document.getElementById('users');
+const description_room = document.getElementById('description_room');
+const name_room = document.getElementById('name_room');
 
 const handleSubmitNewMessage = (room) => {
   socket.emit('message', {
@@ -20,18 +22,13 @@ const handleSubmitNewMessage = (room) => {
   });
 };
 
-socket.on('message', ({ message }) => {
-  handleNewMessage(message);
+socket.on('message', ({ user_id, message }) => {
+  messages.innerHTML = '';
+  handleNewMessage(user_id, message);
 });
 
-const handleNewMessage = (data) => {
-  messages.appendChild(buildNewMessage(data));
-};
-
-const buildNewMessage = (data) => {
-  const li = document.createElement('li');
-  li.appendChild(document.createTextNode(data));
-  return li;
+const handleNewMessage = (user_id, message) => {
+  messages.innerHTML += `<li>${user_id}: ${message}</li>`;
 };
 
 socket.on('users', (arr_user) => {
@@ -54,4 +51,14 @@ const handleSubmitRoom = () => {
 
 const handleSubmitLeave = () => {
   socket.emit('leave', room.value);
+};
+
+const handleSubmitCreate = () => {
+  socket.emit('create', {
+    room: name_room.value,
+    user_id: 1,
+    description: description_room.value,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
 };

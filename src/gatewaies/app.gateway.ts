@@ -132,6 +132,38 @@ export class AppGateway {
     }
   }
 
+  @SubscribeMessage('create')
+  async onRoomCreate(client, data: any): Promise<any> {
+    const conversation = await this.conversationService.findByTitle(data.room);
+    if (conversation) {
+      throw new HttpException('Room exists', HttpStatus.BAD_REQUEST);
+    } else {
+      const conversation = await this.conversationService.create({
+        title: data.room,
+        description: data.description,
+        last_message_id: null,
+        pinned_message_id: null,
+        author_id: data.user_id,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      const userConversation = await this.userConversationService.create({
+        conversation_id: conversation.id,
+        user_id: data.user_id,
+        mute: false,
+        block: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      client.join(data.room);
+      const message = await this.messageService.findById(
+        conversation.last_message_id,
+      );
+      // Send last messages to the connected user
+      client.emit('message', message);
+    }
+  }
+
   @SubscribeMessage('leave')
   onRoomLeave(client, room: any): void {
     client.leave(room);

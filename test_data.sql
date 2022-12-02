@@ -3,9 +3,9 @@ values
 ('hung','hung@gmail.com','1234','2022-11-29','2022-11-29'),
 ('hung1','hung1@gmail.com','1234','2022-11-29','2022-11-29');
 
-insert into conversations(title, description, created_at, updated_at)
+insert into conversations(title, description, author_id, created_at, updated_at)
 values
-('Dev Team','Trao đổi', '2022-11-29','2022-11-29');
+('Dev Team','Trao đổi', 1, '2022-11-29','2022-11-29');
 
 insert into messages(conversation_id, user_id, status, message, created_at, updated_at)
 values

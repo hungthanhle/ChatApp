@@ -27,6 +27,12 @@ export class Conversation implements IConversation {
   @Column({ name: 'last_message_id', nullable: true })
   last_message_id: number | null;
 
+  @Column({ name: 'pinned_message_id', nullable: true })
+  pinned_message_id: number | null;
+
+  @Column({ name: 'author_id' })
+  author_id: number;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
 
