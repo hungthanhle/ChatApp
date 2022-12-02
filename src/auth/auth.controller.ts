@@ -5,14 +5,20 @@ import {
   Request,
   UseGuards,
   Response,
+  Body,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import { UserService } from 'src/users/user.service';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private userService: UserService,
+  ) {}
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
@@ -36,5 +42,26 @@ export class AuthController {
     res.clearCookie('token');
 
     return res.sendStatus(200);
+  }
+
+  @Post('/register')
+  async registerUser(@Body() input) {
+    const user = await this.validate(input.email);
+    if (user) {
+      throw new HttpException(
+        { message: 'User already exists' },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return this.userService.create(input);
+  }
+
+  async validate(email: string) {
+    try {
+      const user = await this.userService.findByEmail(email);
+      return user;
+    } catch {
+      return false;
+    }
   }
 }

@@ -24,8 +24,6 @@ export class UserConversationService {
     userConversation.user_id = createUserConversationDto.user_id;
     userConversation.mute = createUserConversationDto.mute;
     userConversation.block = createUserConversationDto.block;
-    userConversation.last_message_id =
-      createUserConversationDto.last_message_id;
     userConversation.createdAt = new Date();
     userConversation.updatedAt = userConversation.createdAt;
     return await this.userConversationRepository.save(userConversation);
@@ -48,5 +46,15 @@ export class UserConversationService {
 
   async deleteById(id: number): Promise<void> {
     await this.userConversationRepository.delete({ id });
+  }
+
+  async findUsers(conversation_id: number) {
+    const usersConversation = await this.userConversationRepository.find({
+      conversation_id,
+    });
+    const usersId = usersConversation.map((item) => {
+      return item.user_id;
+    });
+    return usersId;
   }
 }

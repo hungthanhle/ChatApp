@@ -22,13 +22,10 @@ export class UserConversation implements IUserConversation {
   @Column({ name: 'conversation_id' })
   conversation_id: number;
 
-  @Column({ name: 'last_message_id' })
-  last_message_id: number;
-
-  @Column({ name: 'mute' })
+  @Column({ name: 'mute', default: false })
   mute: boolean;
 
-  @Column({ name: 'block' })
+  @Column({ name: 'block', default: false })
   block: boolean;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })

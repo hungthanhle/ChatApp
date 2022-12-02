@@ -13,16 +13,21 @@
 
   <div>
     <input id="message" type="text" />
-    <button onclick="handleSubmitNewMessage()">Submit</button>
+    <button onclick="handleSubmitNewMessage('Dev Team')">Send Message</button>
   </div>
 
   <div>
-    <input id="room" type="text"/>
-    <button onclick="handleSubmitNewRoom()">Join Room Code</button>
+    <input id="room" type="text" value="Dev Team"/>
+    <button onclick="handleSubmitRoom()">Join Room</button>
+  </div>
+
+  <div>
+    <h3>Online</h3>
+    <ul id="users"></ul>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
-  <script src="./chat-socket.js"></script>
+  <script src="./chat-socket1.js"></script>
 </body>
 
 </html>

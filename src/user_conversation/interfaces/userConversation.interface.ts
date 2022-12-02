@@ -4,7 +4,6 @@ export interface IUserConversation {
   conversation_id: number;
   mute: boolean;
   block: boolean;
-  last_message_id: number;
 }
 
 export interface UpdateLastMessage {

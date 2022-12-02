@@ -8,9 +8,9 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './users/user.module';
 import config from '../ormconfig';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { AppGateway } from './gateways/app.gateway';
+import { AppGateway } from './gatewaies/app.gateway';
 import { join } from 'path';
-import { GatewayModule } from './gateways/gateway.module';
+import { GatewayModule } from './gatewaies/gateway.module';
 import { ConversationModule } from './conversations/conversation.module';
 import { UserConversationModule } from './user_conversation/userConversation.module';
 /*

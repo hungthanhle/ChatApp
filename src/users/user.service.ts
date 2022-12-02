@@ -19,6 +19,7 @@ export class UserService {
     const user = new User();
     user.name = createUserDto.name;
     user.email = createUserDto.email;
+    user.password = createUserDto.password;
     user.createdAt = new Date();
     user.updatedAt = user.createdAt;
     return await this.userRepository.save(user);

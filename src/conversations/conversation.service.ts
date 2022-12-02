@@ -21,13 +21,20 @@ export class ConversationService {
     const conversation = new Conversation();
     conversation.title = createConversationDto.title;
     conversation.description = createConversationDto.description;
+    conversation.last_message_id = null;
     conversation.createdAt = new Date();
     conversation.updatedAt = conversation.createdAt;
     return await this.conversationRepository.save(conversation);
   }
 
-  async findById(id: number): Promise<Conversation | null> {
-    return await this.conversationRepository.findOne({ id });
+  async findById(
+    id: number,
+    relations: string[] = [],
+  ): Promise<Conversation | null> {
+    return await this.conversationRepository.findOne({
+      where: { id },
+      relations,
+    });
   }
 
   async update(
@@ -43,5 +50,22 @@ export class ConversationService {
 
   async deleteById(id: number): Promise<void> {
     await this.conversationRepository.delete({ id });
+  }
+
+  async findByTitle(
+    title: string,
+    relations: string[] = [],
+  ): Promise<Conversation | null> {
+    return await this.conversationRepository.findOne({
+      where: { title },
+      relations,
+    });
+  }
+
+  async updateLastMessageId(entity: Conversation, last_messages_id: number) {
+    const result = { ...entity };
+    result.last_message_id = last_messages_id;
+    result.updatedAt = new Date();
+    return await this.conversationRepository.update(entity, result);
   }
 }
