@@ -57,4 +57,15 @@ export class UserConversationService {
     });
     return usersId;
   }
+
+  async findConversations(user_id: number, relations: string[] = []) {
+    const userConversation = await this.userConversationRepository.find({
+      where: { user_id },
+      relations,
+    });
+    const conversations = userConversation.map((item) => {
+      return item.conversation;
+    });
+    return conversations;
+  }
 }

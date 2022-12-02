@@ -9,10 +9,15 @@ const messages = document.getElementById('messages');
 const users = document.getElementById('users');
 const description_room = document.getElementById('description_room');
 const name_room = document.getElementById('name_room');
+const conversations = document.getElementById('conversations');
+const join_room = document.getElementById('join_room');
+const message_room = document.getElementById('message_room');
+const add_name_room = document.getElementById('add_name_room');
+const add_user_id = document.getElementById('add_user_id');
 
-const handleSubmitNewMessage = (room) => {
+const handleSubmitNewMessage = () => {
   socket.emit('message', {
-    room,
+    room: message_room.value,
     user_id: 2,
     status: true,
     message: message.value,
@@ -22,18 +27,21 @@ const handleSubmitNewMessage = (room) => {
   });
 };
 
-socket.on('message', ({ user_id, message }) => {
+socket.on('message', (message) => {
   messages.innerHTML = '';
-  handleNewMessage(user_id, message);
+  handleNewMessage(message.user_id, message.message, message.room);
 });
 
-const handleNewMessage = (user_id, message) => {
-  messages.innerHTML += `<li>${user_id}: ${message}</li>`;
+const handleNewMessage = (user_id, message, room) => {
+  messages.innerHTML += `${room}`;
+  if (user_id && message) {
+    messages.innerHTML += `<li>${user_id}: ${message}</li>`;
+  }
 };
 
 socket.on('users', (arr_user) => {
   users.innerHTML = '';
-  arr_user.forEach(element => {
+  arr_user.forEach((element) => {
     handleNewUser(element);
   });
 });
@@ -44,7 +52,7 @@ const handleNewUser = (data) => {
 
 const handleSubmitRoom = () => {
   socket.emit('join', {
-    room: room.value,
+    room: join_room.value,
     user_id: 2,
   });
 };
@@ -60,5 +68,21 @@ const handleSubmitCreate = () => {
     description: description_room.value,
     createdAt: new Date(),
     updatedAt: new Date(),
+  });
+};
+
+socket.on('conversations', (arr_conversation) => {
+  conversations.innerHTML = '';
+  arr_conversation.forEach((element) => {
+    handleNewConversation(element);
+  });
+});
+const handleNewConversation = (data) => {
+  conversations.innerHTML += `<li>${data}</li>`;
+};
+const handleSubmitAdd = () => {
+  socket.emit('join', {
+    room: add_name_room.value,
+    user_id: add_user_id.value,
   });
 };

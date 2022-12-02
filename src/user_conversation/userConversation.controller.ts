@@ -89,4 +89,18 @@ export class UserConversationController {
       throw new HttpException('Error', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  @Get('/conversations/:id')
+  async getConversation(@Param('id', ParseIntPipe) id: number) {
+    try {
+      const conversations =
+        await this.userConversationService.findConversations(id);
+      if (!conversations) {
+        throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+      }
+      return conversations;
+    } catch {
+      throw new HttpException('Error', HttpStatus.NOT_FOUND);
+    }
+  }
 }

@@ -4,32 +4,84 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    .content{
+      display: flex;
+      justify-content: space-around;
+    }
+  </style>
 </head>
 
 <body>
-  <div>
-    <ul id="messages"></ul>
-  </div>
+  <div class="content">
+    <div class="wrap-content">
+      <div>
+        <input id="join_room" type="text" value="Dev Team"/>
+        <button onclick="handleSubmitRoom()">Join Room</button>
+      </div>
 
-  <div>
-    <input id="message" type="text" />
-    <button onclick="handleSubmitNewMessage('Dev Team')">Send Message</button>
-  </div>
+      <div>
+        <ul id="messages"></ul>
+      </div>
 
-  <div>
-    <input id="room" type="text" value="Dev Team"/>
-    <button onclick="handleSubmitRoom()">Join Room</button>
-  </div>
+      <div>
+        <div>
+          Message:
+          <input id="message" type="text" />
+        </div>
+        <div>
+          Room:
+        <input id="message_room" type="text" value="Dev Team"/>
+        </div>
+        <div>
+          <button onclick="handleSubmitNewMessage()">Send Message</button>
+        </div>
+      </div>
+    </div>
+    <div class="wrap-content">
+      <div>
+        <h3>Online</h3>
+        <ul id="users"></ul>
+      </div>
+    
+      <div>
+        <h3>Rooms</h3>
+        <ul id="conversations"></ul>
+      </div>
 
-  <div>
-    <input id="name_room" type="text" value="FE Team"/>
-    <input id="description_room" type="text" value="FE Team"/>
-    <button onclick="handleSubmitCreate()">Create Room</button>
-  </div>
+      <div>
+        <div>
+          <div>
+            Name:
+            <input id="name_room" type="text" value="FE Team"/>
+          </div>
+          <div>
+            Description:
+            <input id="description_room" type="text" value="FE Team"/>
+          </div>
+          <div>
+            <button onclick="handleSubmitCreate()">Create Room</button>
+          </div>
+        </div>
+      </div>
 
-  <div>
-    <h3>Online</h3>
-    <ul id="users"></ul>
+      <div>
+        <h3>Add User To Room</h3>
+        <div>
+          <div>
+            Room:
+            <input id="add_name_room" type="text" value="Dev Team"/>
+          </div>
+          <div>
+            User ID:
+            <input id="add_user_id" type="text"/>
+          </div>
+          <div>
+            <button onclick="handleSubmitAdd()">Submit</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>

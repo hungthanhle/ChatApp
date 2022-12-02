@@ -40,6 +40,14 @@ export class AppGateway {
     if (!user) {
       throw new HttpException('Not found', HttpStatus.NOT_FOUND);
     } else {
+      const conversations =
+        await this.userConversationService.findConversations(user.id, [
+          'conversation',
+        ]);
+      const conversationsTitle = conversations.map((item) => {
+        return item.title;
+      });
+      socket.emit('conversations', conversationsTitle);
       this.ListOnlineUsers.push(user.name);
       this.logger.log(`Online: ${this.ListOnlineUsers}`);
       this.server.emit('users', this.ListOnlineUsers);
@@ -77,30 +85,26 @@ export class AppGateway {
     );
     if (!conversation || !usersId.includes(data.user_id)) {
       throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+    } else {
+      const message = await this.messageService.create({
+        user_id: data.user_id,
+        status: true,
+        message: data.message,
+        conversation_id: conversation.id,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      const messageId = message.id;
+
+      await this.conversationService.updateLastMessageId(
+        conversation,
+        messageId,
+      );
+
+      // client.to(data.room)
+      this.server.to(data.room).emit(event, { ...message, room: data.room });
     }
-    const message = await this.messageService.create({
-      user_id: data.user_id,
-      status: true,
-      message: data.message,
-      conversation_id: conversation.id,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-
-    const messageId = message.id;
-
-    await this.conversationService.updateLastMessageId(conversation, messageId);
-
-    // client.to(data.room)
-    this.server.to(data.room).emit(event, {
-      id: message.id,
-      message: message.message,
-      conversation_id: message.conversation_id,
-      user_id: message.user_id,
-      status: message.status,
-      createdAt: message.createdAt,
-      updatedAt: message.updatedAt,
-    });
   }
 
   @SubscribeMessage('join')
@@ -128,7 +132,7 @@ export class AppGateway {
         conversation.last_message_id,
       );
       // Send last messages to the connected user
-      client.emit('message', message);
+      client.emit('message', { ...message, room: data.room });
     }
   }
 
