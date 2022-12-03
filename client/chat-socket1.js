@@ -14,6 +14,8 @@ const join_room = document.getElementById('join_room');
 const message_room = document.getElementById('message_room');
 const add_name_room = document.getElementById('add_name_room');
 const add_user_id = document.getElementById('add_user_id');
+const message_user_name = document.getElementById('message_user_name');
+const message_user = document.getElementById('message_user');
 
 const handleSubmitNewMessage = () => {
   socket.emit('message', {
@@ -84,5 +86,23 @@ const handleSubmitAdd = () => {
   socket.emit('join', {
     room: add_name_room.value,
     user_id: add_user_id.value,
+  });
+};
+
+socket.on('message-user', (message) => {
+  console.log('haaaa');
+  messages.innerHTML = '';
+  handleNewUserMessage(message.user_id, message.message);
+});
+const handleNewUserMessage = (user_id, message) => {
+  if (user_id && message) {
+    messages.innerHTML += `<li>${user_id}: ${message}</li>`;
+  }
+};
+const handleSubmitNewUserMessage = () => {
+  socket.emit('message-user', {
+    name: message_user_name.value,
+    user_id: 1,
+    message: message_user.value,
   });
 };

@@ -21,6 +21,7 @@ export class AppGateway {
   private logger = new Logger('MessageGateway');
 
   private ListOnlineUsers = [];
+  private sockets = [];
 
   constructor(
     private messageService: MessageService,
@@ -51,6 +52,7 @@ export class AppGateway {
       this.ListOnlineUsers.push(user.name);
       this.logger.log(`Online: ${this.ListOnlineUsers}`);
       this.server.emit('users', this.ListOnlineUsers);
+      this.sockets[user.id] = socket.id;
     }
   }
 
@@ -165,6 +167,19 @@ export class AppGateway {
       );
       // Send last messages to the connected user
       client.emit('message', message);
+    }
+  }
+
+  @SubscribeMessage('message-user')
+  async onUserMessage(client: Socket, data) {
+    const event = 'message-user';
+    const message = data.message;
+    const receiver = await this.userService.findByUsername(data.name);
+    const socket = this.sockets[receiver.id];
+    if (!socket || !receiver) {
+      throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+    } else {
+      client.to(socket).emit(event, { message, user_id: data.user_id });
     }
   }
 
