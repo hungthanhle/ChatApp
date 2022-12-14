@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Conversation } from '../../conversations/entities/conversation.entity';
+import { File } from 'src/files/entities/file.entity';
 
 @Entity({ name: 'messages' })
 export class Message implements IMessage {
@@ -28,6 +29,15 @@ export class Message implements IMessage {
   @Column({ name: 'message', length: 255 })
   message: string;
 
+  @Column('int', { name: 'tag_id', array: true, default: [] })
+  tag_id: number[];
+
+  @Column({ name: 'parent_message_id', nullable: true })
+  parent_message_id: number;
+
+  @Column({ name: 'file_id', nullable: true })
+  file_id: number;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
 
@@ -41,4 +51,8 @@ export class Message implements IMessage {
   @ManyToOne(() => Conversation, (conversation) => conversation.messages)
   @JoinColumn({ name: 'conversation_id' })
   conversation?: Conversation;
+
+  @ManyToOne(() => File, (file) => file.messages)
+  @JoinColumn({ name: 'file_id' })
+  file?: File;
 }

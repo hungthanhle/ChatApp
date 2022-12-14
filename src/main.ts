@@ -2,11 +2,12 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
 
-import * as dotenv from 'dotenv';
-dotenv.config({ path: process.cwd() + '/.env' });
+import { EventsAdapter } from './gatewaies/adapters/ws-adapter';
+import { NestExpressApplication } from '@nestjs/platform-express';
+
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  app.use(cookieParser());
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.useWebSocketAdapter(new EventsAdapter(app));
   await app.listen(process.env.PORT);
 }
 bootstrap();

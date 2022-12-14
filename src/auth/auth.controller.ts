@@ -1,47 +1,50 @@
 import {
-  Get,
-  Post,
-  Controller,
-  Request,
-  UseGuards,
-  Response,
   Body,
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Post,
+  Request,
+  Response,
+  Session,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { LocalAuthGuard } from './guards/local-auth.guard';
+import { AuthenticatedGuard, LocalAuthGuard } from './guards/Guards';
 import { UserService } from 'src/users/user.service';
-import { HttpException, HttpStatus } from '@nestjs/common';
 
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly authService: AuthService,
+    private authService: AuthService,
     private userService: UserService,
   ) {}
 
+  @Get('login')
+  getLogin(@Response() res) {
+    res.sendFile(process.cwd() + '/client/login.html');
+  }
+
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Request() req, @Response({ passthrough: true }) res) {
-    const result = await this.authService.login(req.user);
-    res.cookie('access_token', result.access_token);
-    return result;
+  login(@Response() res) {
+    return res.sendStatus(HttpStatus.OK);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthenticatedGuard)
   @Get('profile')
-  getProfile(@Request() req) {
-    return req.user;
+  getProfile(@Request() req, @Session() session: Record<string, any>) {
+    console.log(`Profile: ${session.id}`);
+    return { user: req.user, session };
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Post('logout')
-  async getUserLogout(@Response() res) {
-    res.setHeader('Set-Cookie', 'Authentication=; HttpOnly; Path=/; Max-Age=0');
-    res.clearCookie('access_token');
-    res.clearCookie('token');
-
-    return res.sendStatus(200);
+  @Get('logout')
+  @UseGuards(AuthenticatedGuard)
+  logout(@Request() req, @Response() res) {
+    req.logout((err) => {
+      return err ? res.sendStatus(400) : res.sendStatus(200);
+    });
   }
 
   @Post('/register')

@@ -14,9 +14,9 @@ import { CreateMessageDto } from './dto/create-message.dto';
 import { MessageService } from './message.service';
 import { ParseIntPipe } from '@nestjs/common';
 import { UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { AuthenticatedGuard } from 'src/auth/guards/Guards';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(AuthenticatedGuard)
 @Controller('messages')
 export class MessageController {
   constructor(private readonly messageService: MessageService) {}

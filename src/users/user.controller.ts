@@ -14,9 +14,9 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UserService } from './user.service';
 import { ParseIntPipe } from '@nestjs/common';
 import { UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { AuthenticatedGuard } from 'src/auth/guards/Guards';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(AuthenticatedGuard)
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}

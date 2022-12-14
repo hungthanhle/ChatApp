@@ -1,6 +1,8 @@
+/* eslint-disable prettier/prettier */
 import { PostgresConnectionCredentialsOptions } from 'typeorm/driver/postgres/PostgresConnectionCredentialsOptions';
 import * as dotenv from 'dotenv';
-dotenv.config({ path: __dirname + '/.env' });
+dotenv.config({ path: './.env' });
+
 const config = {
   type: 'postgres' as 'postgres',
   host: process.env.DB_HOST,

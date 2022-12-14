@@ -1,27 +1,18 @@
-import { Injectable } from '@nestjs/common';
-import { UserService } from '../users/user.service';
-import { JwtService } from '@nestjs/jwt';
-
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { UserService } from 'src/users/user.service';
+import { compareHash } from 'src/utils/helpers';
 @Injectable()
 export class AuthService {
-  constructor(
-    private readonly userService: UserService,
-    private readonly jwtService: JwtService,
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
-  async validateUser(username: string, pass: string): Promise<any> {
-    const user = await this.userService.findByUsername(username);
-    if (user && user.password === pass) {
-      const { password, ...result } = user;
-      return result;
-    }
-    return null;
-  }
-
-  async login(user: any) {
-    const payload = { username: user.name, sub: user.id };
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
+  async validateUser(userDetails) {
+    const user = await this.userService.findByUsername(userDetails.username);
+    if (!user)
+      throw new HttpException('Invalid Credentials', HttpStatus.UNAUTHORIZED);
+    const isPasswordValid = await compareHash(
+      userDetails.password,
+      user.password,
+    );
+    return isPasswordValid ? user : null;
   }
 }

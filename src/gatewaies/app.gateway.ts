@@ -7,11 +7,8 @@ import {
 import { Logger, UseGuards } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { MessageService } from '../messages/message.service';
-import { UserService } from '../users/user.service';
 import { ConversationService } from '../conversations/conversation.service';
 import { UserConversationService } from '../user_conversation/userConversation.service';
-import { JwtService } from '@nestjs/jwt';
-import { User } from 'src/users/entities/user.entity';
 import { HttpException, HttpStatus } from '@nestjs/common';
 @WebSocketGateway()
 export class AppGateway {
@@ -21,14 +18,11 @@ export class AppGateway {
   private logger = new Logger('MessageGateway');
 
   private ListOnlineUsers = [];
-  private sockets = [];
 
   constructor(
     private messageService: MessageService,
-    private userService: UserService,
     private conversationService: ConversationService,
     private userConversationService: UserConversationService,
-    private jwtService: JwtService,
   ) {}
 
   afterInit(server: Server) {
@@ -37,164 +31,78 @@ export class AppGateway {
 
   async handleConnection(socket: Socket) {
     this.logger.log(`${socket.id} connect`);
-    const user = await this.getUserFromToken(socket);
-    if (!user) {
-      throw new HttpException('Not found', HttpStatus.NOT_FOUND);
-    } else {
-      const conversations =
-        await this.userConversationService.findConversations(user.id, [
-          'conversation',
-        ]);
-      const conversationsTitle = conversations.map((item) => {
-        return item.title;
-      });
-      socket.emit('conversations', conversationsTitle);
-      this.ListOnlineUsers.push(user.name);
-      this.logger.log(`Online: ${this.ListOnlineUsers}`);
-      this.server.emit('users', this.ListOnlineUsers);
-      this.sockets[user.id] = socket.id;
+    const client: any = socket;
+    const passport = client.handshake.session.passport;
+    const userId = passport.user.id;
+    const username = passport.user.name;
+    const conversations = await this.userConversationService.findConversations(
+      userId,
+      ['conversation'],
+    );
+    const conversationsCustom = conversations.map((item) => {
+      return {
+        id: item.id,
+        title: item.title,
+        last_message_id: item.last_message_id,
+      };
+    });
+    socket.emit('conversations', conversationsCustom);
+    this.ListOnlineUsers.push(username);
+    this.server.emit('users', this.ListOnlineUsers);
+    for (const item of conversationsCustom) {
+      socket.join(String(item.id));
+      const message = await this.messageService.findById(item.last_message_id);
+      // Send last messages to the connected user
+      socket.emit('message', { ...message, room: String(item.id) });
     }
   }
 
   async handleDisconnect(socket: Socket) {
     this.logger.log(`${socket.id} disconnect`);
-    const user = await this.getUserFromToken(socket);
-    if (!user) {
-      throw new HttpException('Not found', HttpStatus.NOT_FOUND);
-    } else {
-      const index = this.ListOnlineUsers.indexOf(user.name);
-      if (index > -1) {
-        this.ListOnlineUsers.splice(index, 1); //remove one item only
-      }
-      this.logger.log(`Online: ${this.ListOnlineUsers}`);
-      this.server.emit('users', this.ListOnlineUsers);
+    const client: any = socket;
+    const passport = client.handshake.session.passport;
+    const userId = passport.user.id;
+    const username = passport.user.name;
+    const index = this.ListOnlineUsers.indexOf(username);
+    if (index > -1) {
+      this.ListOnlineUsers.splice(index, 1); //remove one item only
     }
+    this.logger.log(`Online: ${this.ListOnlineUsers}`);
+    this.server.emit('users', this.ListOnlineUsers);
   }
 
   @SubscribeMessage('message')
-  async onMessage(client: Socket, data) {
+  async onMessage(socket: Socket, data) {
     const event = 'message';
-    // const conversation = await this.conversationService.findById(
-    //   data.conversation_id,
-    //   ['users'],
-    // );
-    // const usersId = conversation.users.map((user) => {
-    //   return user.id;
-    // });
-    const conversation = await this.conversationService.findByTitle(data.room);
-    const usersId = await this.userConversationService.findUsers(
-      conversation.id,
+    const client: any = socket;
+    const passport = client.handshake.session.passport;
+    const userId = passport.user.id;
+    const username = passport.user.name;
+    const message = await this.messageService.create({
+      user_id: userId,
+      status: true,
+      message: data.message,
+      conversation_id: data.conversation_id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    const messageId = message.id;
+    await this.conversationService.updateLastMessage(
+      data.conversation_id,
+      messageId,
     );
-    if (!conversation || !usersId.includes(data.user_id)) {
-      throw new HttpException('Not found', HttpStatus.NOT_FOUND);
-    } else {
-      const message = await this.messageService.create({
-        user_id: data.user_id,
-        status: true,
-        message: data.message,
-        conversation_id: conversation.id,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
-
-      const messageId = message.id;
-
-      await this.conversationService.updateLastMessageId(
-        conversation,
-        messageId,
-      );
-
-      // client.to(data.room)
-      this.server.to(data.room).emit(event, { ...message, room: data.room });
-    }
+    this.server
+      .to(String(data.conversation_id))
+      .emit(event, { ...message, room: data.conversation_id });
   }
 
-  @SubscribeMessage('join')
-  async onRoomJoin(client, data: any): Promise<any> {
-    const conversation = await this.conversationService.findByTitle(data.room);
-    if (!conversation) {
-      throw new HttpException('Not found', HttpStatus.NOT_FOUND);
-    } else {
-      const usersId = await this.userConversationService.findUsers(
-        conversation.id,
-      );
-      if (!usersId.includes(data.user_id)) {
-        //user_id constraint
-        await this.userConversationService.create({
-          conversation_id: conversation.id,
-          user_id: data.user_id,
-          mute: false,
-          block: false,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
-      }
-      client.join(data.room);
-      const message = await this.messageService.findById(
-        conversation.last_message_id,
-      );
-      // Send last messages to the connected user
-      client.emit('message', { ...message, room: data.room });
-    }
-  }
-
-  @SubscribeMessage('create')
-  async onRoomCreate(client, data: any): Promise<any> {
-    const conversation = await this.conversationService.findByTitle(data.room);
-    if (conversation) {
-      throw new HttpException('Room exists', HttpStatus.BAD_REQUEST);
-    } else {
-      const conversation = await this.conversationService.create({
-        title: data.room,
-        description: data.description,
-        last_message_id: null,
-        pinned_message_id: null,
-        author_id: data.user_id,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
-      const userConversation = await this.userConversationService.create({
-        conversation_id: conversation.id,
-        user_id: data.user_id,
-        mute: false,
-        block: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
-      client.join(data.room);
-      const message = await this.messageService.findById(
-        conversation.last_message_id,
-      );
-      // Send last messages to the connected user
-      client.emit('message', message);
-    }
-  }
-
-  @SubscribeMessage('message-user')
-  async onUserMessage(client: Socket, data) {
-    const event = 'message-user';
-    const message = data.message;
-    const receiver = await this.userService.findByUsername(data.name);
-    const socket = this.sockets[receiver.id];
-    if (!socket || !receiver) {
-      throw new HttpException('Not found', HttpStatus.NOT_FOUND);
-    } else {
-      client.to(socket).emit(event, { message, user_id: data.user_id });
-    }
-  }
+  // @SubscribeMessage('create')
+  // async onRoomCreate(client, data: any): Promise<any> {
+  //   client.join(data.room);
+  // }
 
   @SubscribeMessage('leave')
   onRoomLeave(client, room: any): void {
     client.leave(room);
-  }
-
-  async getUserFromToken(socket: Socket): Promise<User> {
-    const authToken: any = socket.handshake?.query?.token;
-    try {
-      const payload = this.jwtService.verify(authToken);
-      return await this.userService.findByUsername(payload.username);
-    } catch {
-      throw new HttpException('Error', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
   }
 }

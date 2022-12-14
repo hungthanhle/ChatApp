@@ -70,4 +70,14 @@ export class ConversationService {
     result.updatedAt = new Date();
     return await this.conversationRepository.update(entity, result);
   }
+
+  async updateLastMessage(conversation_id: number, last_messages_id: number) {
+    const entity = await this.conversationRepository.findOne({
+      id: conversation_id,
+    });
+    const result = { ...entity };
+    result.last_message_id = last_messages_id;
+    result.updatedAt = new Date();
+    return await this.conversationRepository.update(entity, result);
+  }
 }

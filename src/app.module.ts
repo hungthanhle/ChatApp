@@ -13,12 +13,9 @@ import { join } from 'path';
 import { GatewayModule } from './gatewaies/gateway.module';
 import { ConversationModule } from './conversations/conversation.module';
 import { UserConversationModule } from './user_conversation/userConversation.module';
-/*
-  ConfigModule.forRoot({
-    isGlobal: true,
-    envFilePath: '.env',
-  }),
-*/
+import { MulterModule } from '@nestjs/platform-express/multer';
+import { FileModule } from './files/file.module';
+import { Session } from './auth/sessions/sessions.entity';
 @Module({
   imports: [
     TypeOrmModule.forRoot(config),
@@ -28,6 +25,8 @@ import { UserConversationModule } from './user_conversation/userConversation.mod
     ConversationModule,
     UserConversationModule,
     GatewayModule,
+    FileModule,
+    TypeOrmModule.forFeature([Session]),
   ],
   controllers: [AppController],
   providers: [AppService],

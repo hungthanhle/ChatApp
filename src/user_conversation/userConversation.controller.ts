@@ -9,21 +9,23 @@ import {
   ClassSerializerInterceptor,
   HttpException,
   HttpStatus,
+  Response,
 } from '@nestjs/common';
 import { CreateUserConversationDto } from './dto/create-userConversation.dto';
 import { UserConversationService } from './userConversation.service';
 import { ParseIntPipe } from '@nestjs/common';
 import { UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { AuthenticatedGuard } from 'src/auth/guards/Guards';
+import { ConversationService } from 'src/conversations/conversation.service';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(AuthenticatedGuard)
 @Controller('user-conversation')
 export class UserConversationController {
   constructor(
     private readonly userConversationService: UserConversationService,
+    private readonly conversationService: ConversationService,
   ) {}
 
-  @Get('/')
   async getall() {
     try {
       const userConversations = await this.userConversationService.findAll();
@@ -50,7 +52,6 @@ export class UserConversationController {
     }
   }
 
-  @Post('/')
   @UseInterceptors(ClassSerializerInterceptor)
   async create(@Body() createUserConversationDto: CreateUserConversationDto) {
     try {
@@ -102,5 +103,32 @@ export class UserConversationController {
     } catch {
       throw new HttpException('Error', HttpStatus.NOT_FOUND);
     }
+  }
+
+  @Post('/')
+  async newRoom(@Body() data: any) {
+    const conversation = await this.conversationService.create({
+      title: data.room,
+      description: data.description,
+      last_message_id: null,
+      pinned_message_id: null,
+      author_id: data.user_id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    const userConversation = await this.userConversationService.create({
+      conversation_id: conversation.id,
+      user_id: data.user_id,
+      mute: false,
+      block: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    return { conversation };
+  }
+
+  @Get('/')
+  async getRoom(@Response() res) {
+    res.sendFile(process.cwd() + '/client/client.html');
   }
 }

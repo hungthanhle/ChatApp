@@ -14,9 +14,9 @@ import { CreateConversationDto } from './dto/create-conversation.dto';
 import { ConversationService } from './conversation.service';
 import { ParseIntPipe } from '@nestjs/common';
 import { UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { AuthenticatedGuard } from 'src/auth/guards/Guards';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(AuthenticatedGuard)
 @Controller('conversations')
 export class ConversationController {
   constructor(private readonly conversationService: ConversationService) {}

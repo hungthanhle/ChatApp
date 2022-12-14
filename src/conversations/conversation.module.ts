@@ -8,5 +8,6 @@ import { ConversationRepository } from './repos/conversation.repository';
   imports: [TypeOrmModule.forFeature([ConversationRepository])],
   controllers: [ConversationController],
   providers: [ConversationService],
+  exports: [ConversationService],
 })
 export class ConversationModule {}
