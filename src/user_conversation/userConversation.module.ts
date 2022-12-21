@@ -4,12 +4,10 @@ import { UserConversationService } from './userConversation.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserConversationRepository } from './repos/userConversation.repository';
 import { ConversationModule } from 'src/conversations/conversation.module';
+import { UserModule } from 'src/users/user.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([UserConversationRepository]),
-    ConversationModule,
-  ],
+  imports: [TypeOrmModule.forFeature([UserConversationRepository]), UserModule],
   controllers: [UserConversationController],
   providers: [UserConversationService],
   exports: [UserConversationService],

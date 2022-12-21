@@ -27,6 +27,9 @@ export class User implements IUser {
   @Column({ name: 'password', length: 255 })
   password: string;
 
+  @Column({ name: 'phone', length: 255, nullable: true })
+  phone: string;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamp', nullable: true })
   createdAt: Date;
 

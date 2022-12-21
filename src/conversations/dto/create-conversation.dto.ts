@@ -1,5 +1,5 @@
 export class CreateConversationDto {
-  title: string;
+  title: string | null;
   description: string;
   last_message_id: number | null;
   pinned_message_id: number | null;

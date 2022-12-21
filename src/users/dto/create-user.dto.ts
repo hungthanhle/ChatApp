@@ -12,6 +12,7 @@ export class CreateUserDto {
   @IsNotEmpty()
   password: string;
 
+  phone: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

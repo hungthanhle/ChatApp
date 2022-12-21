@@ -17,13 +17,15 @@ import { ParseIntPipe } from '@nestjs/common';
 import { UseGuards } from '@nestjs/common';
 import { AuthenticatedGuard } from 'src/auth/guards/Guards';
 import { ConversationService } from 'src/conversations/conversation.service';
+import { AddMultipleUsersDto } from './dto/addMultipleUser.dto';
+import { UserService } from 'src/users/user.service';
 
 @UseGuards(AuthenticatedGuard)
 @Controller('user-conversation')
 export class UserConversationController {
   constructor(
     private readonly userConversationService: UserConversationService,
-    private readonly conversationService: ConversationService,
+    private readonly userService: UserService,
   ) {}
 
   async getall() {
@@ -105,26 +107,36 @@ export class UserConversationController {
     }
   }
 
+  //API ADD MULTIPLE USERS (Vào chat 1v1 hoặc group chat)
   @Post('/')
-  async newRoom(@Body() data: any) {
-    const conversation = await this.conversationService.create({
-      title: data.room,
-      description: data.description,
-      last_message_id: null,
-      pinned_message_id: null,
-      author_id: data.user_id,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-    const userConversation = await this.userConversationService.create({
-      conversation_id: conversation.id,
-      user_id: data.user_id,
-      mute: false,
-      block: false,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-    return { conversation };
+  async addMultipleUsers(@Body() addMultipleUsersDto: AddMultipleUsersDto) {
+    const numberUsers = addMultipleUsersDto.array_user_phone.length;
+    const usersAdded = [];
+    try {
+      for (let i = 0; i < numberUsers; i++) {
+        const user = await this.userService.findByPhone(
+          addMultipleUsersDto.array_user_phone[i],
+        );
+        const userConversation = await this.userConversationService.create({
+          conversation_id: addMultipleUsersDto.conversation_id,
+          user_id: user.id,
+          mute: false,
+          block: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+        usersAdded.push(userConversation.user_id);
+      }
+      return {
+        conversation_id: addMultipleUsersDto.conversation_id,
+        array_user_id: usersAdded,
+      };
+    } catch {
+      return {
+        conversation_id: addMultipleUsersDto.conversation_id,
+        array_user_id: usersAdded,
+      };
+    }
   }
 
   @Get('/')

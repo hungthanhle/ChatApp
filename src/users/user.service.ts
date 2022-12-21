@@ -21,6 +21,7 @@ export class UserService {
     user.name = createUserDto.name;
     user.email = createUserDto.email;
     user.password = await hashPassword(createUserDto.password);
+    user.phone = createUserDto.phone;
     user.createdAt = new Date();
     user.updatedAt = user.createdAt;
     return await this.userRepository.save(user);
@@ -45,5 +46,9 @@ export class UserService {
 
   async deleteById(id: number): Promise<void> {
     await this.userRepository.delete({ id });
+  }
+
+  async findByPhone(phone: string): Promise<User | null> {
+    return await this.userRepository.findOne({ phone });
   }
 }

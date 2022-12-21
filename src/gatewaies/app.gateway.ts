@@ -3,6 +3,9 @@ import {
   SubscribeMessage,
   MessageBody,
   WebSocketServer,
+  OnGatewayConnection,
+  OnGatewayInit,
+  OnGatewayDisconnect
 } from '@nestjs/websockets';
 import { Logger, UseGuards } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
@@ -11,7 +14,9 @@ import { ConversationService } from '../conversations/conversation.service';
 import { UserConversationService } from '../user_conversation/userConversation.service';
 import { HttpException, HttpStatus } from '@nestjs/common';
 @WebSocketGateway()
-export class AppGateway {
+export class AppGateway
+  implements OnGatewayConnection, OnGatewayInit, OnGatewayDisconnect
+{
   @WebSocketServer()
   server;
 
@@ -26,7 +31,7 @@ export class AppGateway {
   ) {}
 
   afterInit(server: Server) {
-    this.logger.log(server, 'Init');
+    console.log('Init');
   }
 
   async handleConnection(socket: Socket) {
