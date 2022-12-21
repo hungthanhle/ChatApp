@@ -1,7 +1,7 @@
-insert into users(name, email, password, created_at, updated_at)
+insert into users(name, email, password, phone, created_at, updated_at)
 values
-('hung','hung@gmail.com','$2b$10$jlpGUNqEBpMrfh9GqA55iuK3vfBw9F0v/peIp5WP/oFyEh2Q0Fpqq','2022-11-29','2022-11-29'),
-('hung1','hung1@gmail.com','$2b$10$THQC/rTttlth/UuaKH1c/O1u9qd3VCveA9airzPzoyKB7H4lgt0qi','2022-11-29','2022-11-29');
+('hung','hung@gmail.com','$2b$10$jlpGUNqEBpMrfh9GqA55iuK3vfBw9F0v/peIp5WP/oFyEh2Q0Fpqq', '01234567891' ,'2022-11-29','2022-11-29'),
+('hung1','hung1@gmail.com','$2b$10$THQC/rTttlth/UuaKH1c/O1u9qd3VCveA9airzPzoyKB7H4lgt0qi','01234567892','2022-11-29');
 --username=hung, password=1234
 --username=hung1, password=1234
 insert into conversations(title, description, author_id, created_at, updated_at)

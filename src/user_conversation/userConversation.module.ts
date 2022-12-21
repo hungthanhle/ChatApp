@@ -3,8 +3,8 @@ import { UserConversationController } from './userConversation.controller';
 import { UserConversationService } from './userConversation.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserConversationRepository } from './repos/userConversation.repository';
-import { ConversationModule } from 'src/conversations/conversation.module';
-import { UserModule } from 'src/users/user.module';
+import { ConversationModule } from '../conversations/conversation.module';
+import { UserModule } from '../users/user.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([UserConversationRepository]), UserModule],

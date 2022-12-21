@@ -18,7 +18,7 @@ export class Conversation implements IConversation {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'title' })
+  @Column({ name: 'title', nullable: true })
   title: string;
 
   @Column({ name: 'description', length: 5000 })

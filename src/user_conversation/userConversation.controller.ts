@@ -15,10 +15,10 @@ import { CreateUserConversationDto } from './dto/create-userConversation.dto';
 import { UserConversationService } from './userConversation.service';
 import { ParseIntPipe } from '@nestjs/common';
 import { UseGuards } from '@nestjs/common';
-import { AuthenticatedGuard } from 'src/auth/guards/Guards';
-import { ConversationService } from 'src/conversations/conversation.service';
+import { AuthenticatedGuard } from '../auth/guards/Guards';
+import { ConversationService } from '../conversations/conversation.service';
 import { AddMultipleUsersDto } from './dto/addMultipleUser.dto';
-import { UserService } from 'src/users/user.service';
+import { UserService } from '../users/user.service';
 
 @UseGuards(AuthenticatedGuard)
 @Controller('user-conversation')

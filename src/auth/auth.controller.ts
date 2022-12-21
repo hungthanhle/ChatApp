@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthenticatedGuard, LocalAuthGuard } from './guards/Guards';
-import { UserService } from 'src/users/user.service';
+import { UserService } from '../users/user.service';
 
 @Controller('auth')
 export class AuthController {

@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserRepository } from './repos/user.repository';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
-import { hashPassword } from 'src/utils/helpers';
+import { hashPassword } from '../utils/helpers';
 
 @Injectable()
 export class UserService {

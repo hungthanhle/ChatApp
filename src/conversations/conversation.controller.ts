@@ -14,8 +14,8 @@ import { CreateConversationDto } from './dto/create-conversation.dto';
 import { ConversationService } from './conversation.service';
 import { ParseIntPipe } from '@nestjs/common';
 import { UseGuards } from '@nestjs/common';
-import { AuthenticatedGuard } from 'src/auth/guards/Guards';
-import { UserConversationService } from 'src/user_conversation/userConversation.service';
+import { AuthenticatedGuard } from '../auth/guards/Guards';
+import { UserConversationService } from '../user_conversation/userConversation.service';
 
 @UseGuards(AuthenticatedGuard)
 @Controller('conversations')

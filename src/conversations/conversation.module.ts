@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserConversationModule } from 'src/user_conversation/userConversation.module';
+import { UserConversationModule } from '../user_conversation/userConversation.module';
 import { ConversationController } from './conversation.controller';
 import { ConversationService } from './conversation.service';
 import { ConversationRepository } from './repos/conversation.repository';

@@ -14,7 +14,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UserService } from './user.service';
 import { ParseIntPipe } from '@nestjs/common';
 import { UseGuards } from '@nestjs/common';
-import { AuthenticatedGuard } from 'src/auth/guards/Guards';
+import { AuthenticatedGuard } from '../auth/guards/Guards';
 
 @UseGuards(AuthenticatedGuard)
 @Controller('users')

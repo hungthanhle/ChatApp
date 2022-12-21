@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { UserService } from 'src/users/user.service';
-import { compareHash } from 'src/utils/helpers';
+import { UserService } from '../users/user.service';
+import { compareHash } from '../utils/helpers';
 @Injectable()
 export class AuthService {
   constructor(private readonly userService: UserService) {}

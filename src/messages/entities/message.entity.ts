@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Conversation } from '../../conversations/entities/conversation.entity';
-import { File } from 'src/files/entities/file.entity';
+import { File } from '../../files/entities/file.entity';
 
 @Entity({ name: 'messages' })
 export class Message implements IMessage {
