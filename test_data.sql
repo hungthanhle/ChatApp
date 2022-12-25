@@ -1,7 +1,7 @@
 insert into users(name, email, password, phone, created_at, updated_at)
 values
 ('hung','hung@gmail.com','$2b$10$jlpGUNqEBpMrfh9GqA55iuK3vfBw9F0v/peIp5WP/oFyEh2Q0Fpqq', '01234567891' ,'2022-11-29','2022-11-29'),
-('hung1','hung1@gmail.com','$2b$10$THQC/rTttlth/UuaKH1c/O1u9qd3VCveA9airzPzoyKB7H4lgt0qi','01234567892','2022-11-29');
+('hung1','hung1@gmail.com','$2b$10$THQC/rTttlth/UuaKH1c/O1u9qd3VCveA9airzPzoyKB7H4lgt0qi','01234567892','2022-11-29','2022-11-29');
 --username=hung, password=1234
 --username=hung1, password=1234
 insert into conversations(title, description, author_id, created_at, updated_at)
@@ -25,3 +25,14 @@ values
 (2,1,false,false,'2022-11-29','2022-11-29'),
 (1,2,false,false,'2022-11-29','2022-11-29'),
 (2,3,false,false,'2022-11-29','2022-11-29');
+
+-- GIN
+alter table messages
+add column fts_doc_en VARCHAR(258)
+generated always as (to_tsvector ('english', message)) stored;
+
+CREATE EXTENSION pg_trgm;
+CREATE EXTENSION btree_gin;
+create index messages_fts_doc_en_idx
+	on messages
+	using gin (fts_doc_en);

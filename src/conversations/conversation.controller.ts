@@ -9,6 +9,7 @@ import {
   ClassSerializerInterceptor,
   HttpException,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { CreateConversationDto } from './dto/create-conversation.dto';
 import { ConversationService } from './conversation.service';
@@ -16,13 +17,15 @@ import { ParseIntPipe } from '@nestjs/common';
 import { UseGuards } from '@nestjs/common';
 import { AuthenticatedGuard } from '../auth/guards/Guards';
 import { UserConversationService } from '../user_conversation/userConversation.service';
+import { ConversationRepository } from './repos/conversation.repository';
 
-@UseGuards(AuthenticatedGuard)
+// @UseGuards(AuthenticatedGuard)
 @Controller('conversations')
 export class ConversationController {
   constructor(
     private readonly conversationService: ConversationService,
     private readonly userConversationService: UserConversationService,
+    private readonly conversationRepository: ConversationRepository,
   ) {}
 
   @Get('/')
@@ -119,5 +122,23 @@ export class ConversationController {
     } catch {
       throw new HttpException('Error', HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  // API search
+  // http://localhost:3000/conversations/1/search?q=1
+  @Get('/:id/search')
+  async searchMessage(
+    @Param('id', ParseIntPipe) id: number,
+    @Query('q') query,
+  ) {
+    console.log(id);
+    console.log(query);
+    const result = await this.conversationRepository
+      .createQueryBuilder('conversations')
+      .leftJoinAndSelect('conversations.messages', 'messages')
+      .where(`conversations.id = ${id}`)
+      .andWhere(`messages.fts_doc_en @@ websearch_to_tsquery('english', '${query}')`)
+      .getMany();
+    return result;
   }
 }
